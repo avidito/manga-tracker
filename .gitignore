@@ -4,3 +4,4 @@ logs/
 
 main.py
 plan.txt
+__pycache__/
