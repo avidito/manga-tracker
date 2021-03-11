@@ -6,26 +6,15 @@ from .bounty import BountyHandler
 from .database import DatabaseEngine
 from .log import Logger
 
+
+
 class MangaTracker:
     """
     Web-Scraping Main Engine.
     """
-    def __init__(self, bounty='bounty.json', output='outputs', log='logs'):
-        self.bh = BountyHandler(bounty)
-        self.db = DatabaseEngine(output)
-        self.log = Logger(log)
 
-    def _init_job(self):
-        """
-        Initiate job metadata and output file.
-        """
-        # Init log and database
-        job_id = self.log.log_start()
-        self.db.init_db(job_id)
-
-        return job_id
-
-    def _preproccess(self, data):
+    @staticmethod
+    def _preproccess(data):
         """
         Preprocessing scraped data.
         """
@@ -33,7 +22,8 @@ class MangaTracker:
         data['updated_at'] = datetime.strptime(data['updated_at'], '%b %d,%Y - %H:%M %p').strftime('%d-%m-%Y %H:%M')
         return data
 
-    def _scrape(self, url):
+    @staticmethod
+    def _scrape(url):
         """
         Scraping proccess.
         """
@@ -58,38 +48,32 @@ class MangaTracker:
         }
 
         # Preprocess data
-        data = self._preproccess(extracted)
+        data = MangaTracker._preproccess(extracted)
         return data, req.status_code
 
-    def _load(self, title, data, response):
+    @staticmethod
+    def _load(title, data, response, log, db):
         """
         Load data to database and log.
         """
-        self.db.load_data(title, self.log.job_id, data)
-        self.log.log_scrape(title, response)
+        log.log_scrape(title, response)
+        db.load_data(title, log.job_id, data)
 
-    def _end_job(self):
+    @staticmethod
+    def _end_job(log):
         """
         Logging data
         """
-        self.log.log_end()
+        log.log_end()
 
-    def crawl(self):
+    @staticmethod
+    def crawl(groups, log, db):
         """
-        Run the web-scraping process.
+        Run the web-crawling process.
         """
-        # Job initiation
-        self._init_job()
-
-        # Start scraping each target
-        for bounty in self.bh.bounty['bounty']:
-            website = bounty['website']
-            targets = bounty['targets']
-
-            # Scrape each link
-            for (alias, url) in targets:
-                data, response = self._scrape(url)
-                self._load(alias, data, response)
-
-        # Logging job
-        self._end_job()
+        for group in groups:
+            website = group['website']
+            targets = group['targets']
+            for (title, url) in targets:
+                data, response = MangaTracker._scrape(url)
+                MangaTracker._load(title, data, response, log, db)

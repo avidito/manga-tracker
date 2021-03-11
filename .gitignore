@@ -2,7 +2,6 @@ venv/
 outputs/
 logs/
 
-main.py
 plan.txt
 bounty.json
 

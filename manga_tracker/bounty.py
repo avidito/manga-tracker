@@ -9,7 +9,7 @@ class BountyHandler:
     """
     def __init__(self, path):
         self.path = path
-        self.bounty = self._read_bounty()
+        self.groups = self._read_bounty()
 
     def _read_bounty(self):
         """
@@ -17,7 +17,7 @@ class BountyHandler:
         """
         with open(self.path, 'r') as f:
             bounty = json.loads(f.read())
-        return bounty['bounty']
+        return bounty['groups']
 
     def _check(self, website, target=None):
         """
@@ -49,7 +49,7 @@ class BountyHandler:
         Reconstruct bounty list.
         """
         with open(self.path, 'w') as f:
-            f.write(json.dumps({'bounty': self.bounty}))
+            f.write(json.dumps({'groups': self.bounty}))
         print(msg)
 
     def show_bounty(self):
