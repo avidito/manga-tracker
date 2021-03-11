@@ -99,3 +99,7 @@ class MangaTracker:
         # End job
         log.log_end()
         log.show_log()
+
+    # Bounty Handler
+    @staticmethod
+    def show_bounty(): return BountyHandler.show_bounty()

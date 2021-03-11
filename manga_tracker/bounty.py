@@ -50,15 +50,19 @@ class BountyHandler:
             f.write(json.dumps({'groups': self.bounty}))
         print(msg)
 
-    def show_bounty(self):
+    @staticmethod
+    def show_bounty(path='bounty.json'):
         """
-        Show all target in bounty list.
+        Show all targets in bounty list.
         """
-        for bounty in self.bounty:
-            print("Website: {}\nTargets:".format(bounty['website']))
+        bounty_list = BountyHandler._read_bounty(path)
+        result = ''
+        for bounty in bounty_list:
+            result += 'Website: {}\nTargets:\n'.format(bounty['website'])
             for target in bounty['targets']:
-                print("- {}\n\t{}".format(*target))
-            print('')
+                result += '- {}\n\t{}\n'.format(*target)
+            result += '\n'
+        return result
 
     def add_target(self, website, alias, link):
         """

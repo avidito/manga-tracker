@@ -1,21 +1,30 @@
 import click
 
-# Basic OOP Format
-from manga_tracker.log import Logger
-from manga_tracker.bounty import BountyHandler
-from manga_tracker.database import DatabaseEngine
-
 # OOP CLI format
 from manga_tracker import MangaTracker
 
 @click.group()
 def cli():
+    """
+    CLI Program to Track Updated Manga using Web-Scraping (bs4).
+    """
     pass
 
 @cli.command('crawl')
 def crawl():
+    """
+    Start crawling process.
+    """
     handler = MangaTracker.init_job()
     MangaTracker.crawl(**handler)
+
+@cli.command('show-bounty')
+def show_bounty():
+    """
+    Show all targets in bounty list.
+    """
+    result = MangaTracker.show_bounty()
+    print(result)
 
 if __name__ == '__main__':
     cli()
