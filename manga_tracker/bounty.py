@@ -7,15 +7,13 @@ class BountyHandler:
     """
     Module to Use and Manage Bounty List.
     """
-    def __init__(self, path):
-        self.path = path
-        self.groups = self._read_bounty()
 
-    def _read_bounty(self):
+    @staticmethod
+    def _read_bounty(path):
         """
         Validate and read bounty list.
         """
-        with open(self.path, 'r') as f:
+        with open(path, 'r') as f:
             bounty = json.loads(f.read())
         return bounty['groups']
 
