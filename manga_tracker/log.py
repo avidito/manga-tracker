@@ -1,6 +1,6 @@
 from datetime import datetime
 
-class Logger:
+class LogHandler:
     """
     Module to Read, Load, and Represent Job Logs
     """
@@ -8,51 +8,52 @@ class Logger:
         self.path = path
         self.column = ['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']
 
-    def _generate_report(self):
+    @staticmethod
+    def _dtlog(msg):
         """
-        Generate log to report format.
+        Embed Log Time to Message
         """
-        report = ''
-        report += 'Job ID: {}\n'.format(self.job_id)
-        report += 'Start Time: {}\n'.format(self.start_time)
-        report += 'End Time: {}\n'.format(self.end_time)
+        now = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        return "{} {}\n".format(now, msg)
 
-        report += 'Link Crawled:\n'
-        for link in self.link_crawled:
-            report += "\t - {} | {} | {}\n".format(*link)
-
-        return report
-
-    def log_start(self):
+    @staticmethod
+    def log_start(path):
         """
-        Initiate log record.
+        Create start of job log.
         """
+        # Init Job Id
         dt_start_time = datetime.now()
-        self.job_id = dt_start_time.strftime("%Y%m%d%H%M")
-        self.start_time = dt_start_time.strftime('%d/%m/%Y %H:%M:%S')
-        self.link_crawled = []
+        job_id = dt_start_time.strftime("%Y%m%d%H%M")
+        LogHandler.logging(path, job_id, 'Job Id: {}'.format(job_id))
 
-        return self.job_id
+        # Log Start Time
+        start_time = dt_start_time.strftime('%d/%m/%Y %H:%M:%S')
+        LogHandler.logging(path, job_id, 'Start Time: {}'.format(start_time))
 
-    def log_scrape(self, title, response):
-        """
-        Insert scraping record.
-        """
-        time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-        self.link_crawled.append((title, response, time))
+        return job_id
 
-    def log_end(self):
+    @staticmethod
+    def log_scrape(path, job_id, title, response):
         """
-        Closing log record
+        Create scraping log.
         """
-        # Set End Time
-        dt_end_time = datetime.now()
-        self.end_time = dt_end_time.strftime('%d/%m/%Y %H:%M:%S')
+        LogHandler.logging(path, job_id, '{} - Response: {}'.format(title, response))
 
-        # Load log report
-        report = self._generate_report()
-        with open('{}\{}.txt'.format(self.path, self.job_id), 'w') as f:
-            f.write(report)
+    @staticmethod
+    def log_end(path, job_id):
+        """
+        Create end of job log.
+        """
+        end_time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        LogHandler.logging(path, job_id, 'End Time: {}\n'.format(end_time))
+
+    @staticmethod
+    def logging(path, job_id, msg):
+        """
+        Create initiation activity log.
+        """
+        with open('{}\{}.txt'.format(path, job_id), 'a') as f:
+            f.write(LogHandler._dtlog(msg))
 
     def show_log(self, job_id=None):
         """

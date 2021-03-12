@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 from .bounty import BountyHandler
+from .log import LogHandler
 from .database import DatabaseEngine
-from .log import Logger
 
 class MangaTracker:
     """
@@ -50,55 +50,57 @@ class MangaTracker:
         return data, req.status_code
 
     @staticmethod
-    def _load(title, data, response, log, db):
+    def _load(title, response, data, log_path, job_id, db):
         """
         Load data to database and log.
         """
-        log.log_scrape(title, response)
-        db.load_data(title, log.job_id, data)
+        LogHandler.log_scrape(log_path, job_id, title, response)
+        db.load_data(title, job_id, data)
 
     @staticmethod
-    def _end_job(log):
+    def end_job(log_path, job_id):
         """
         Logging data
         """
-        log.log_end()
+        LogHandler.log_end(log_path, job_id)
 
     @staticmethod
     def init_job(log_path='logs', bounty_path='bounty.json', db_path='outputs'):
         """
         Initiate job by reading bounty and define job metadata.
         """
-        log = Logger(log_path)
-        db = DatabaseEngine(db_path)
-
-        # Initiate metadata
-        job_id = log.log_start()
+        job_id = LogHandler.log_start(log_path)
         groups = BountyHandler._read_bounty(bounty_path)
+        LogHandler.logging(log_path, job_id, 'Target aquired from bounty file. X target(s).')
+
+        db = DatabaseEngine(db_path)
         db.init_db(job_id)
+        LogHandler.logging(log_path, job_id, 'Database connection successfully created.')
+
         handler = {
-            'log': log,
             'db': db,
-            'groups': groups
+            'groups': groups,
+            'job_id': job_id,
+            'log_path': log_path
         }
         return handler
 
     @staticmethod
-    def crawl(groups, log, db):
+    def crawl(db, groups, job_id, log_path):
         """
         Run the web-crawling process.
         """
+
         # Start crawling
         for group in groups:
             website = group['website']
             targets = group['targets']
             for (title, url) in targets:
                 data, response = MangaTracker._scrape(url)
-                MangaTracker._load(title, data, response, log, db)
+                MangaTracker._load(title, response, data, log_path, job_id, db)
 
         # End job
-        log.log_end()
-        log.show_log()
+        MangaTracker.end_job(log_path, job_id)
 
 # Bounty Handler
 MangaTracker.show_bounty = staticmethod(lambda: BountyHandler.show_bounty())
