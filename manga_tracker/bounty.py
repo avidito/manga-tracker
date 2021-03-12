@@ -1,8 +1,5 @@
 import json
 
-from .database import DatabaseEngine
-from .log import Logger
-
 class BountyHandler:
     """
     Module to Use and Manage Bounty List.
@@ -109,16 +106,19 @@ class BountyHandler:
                     "Successfully remove '{}' from '{}'".format(alias, website))
         return message
 
-    def update_target(self, website, alias, new_alias=None, new_link=None):
+    @staticmethod
+    def update_target(website, alias, newalias=None, newlink=None):
         """
         Update existing target in bounty list.
         """
         # Find target
-        group = self._check(website, alias)
-        if (group == -2):
-            return "Group with website {} not found!".format(website)
-        elif (group == -1):
+        result = BountyHandler._check(website, alias)
+        if (result == -2):
+            return "Group with website '{}' not found!".format(website)
+        elif (result == -1):
             return "Group with target {} not found!".format(alias)
+        else:
+            bounty_list, group = result
 
         # Get target from group
         for target in group['targets']:
@@ -127,8 +127,10 @@ class BountyHandler:
                 break
 
         # Edit alias (and/or link) value
-        p_target[0] = new_alias if (new_alias) else p_target[0]
-        p_target[1] = new_link if (new_link) else p_target[1]
+        p_target[0] = newalias if (newalias) else p_target[0]
+        p_target[1] = newlink if (newlink) else p_target[1]
 
         # Reconstruct bounty file
-        BountyHandler._reconstruct("Successfully changed '{}' from '{}'".format(alias, website))
+        message = BountyHandler._reconstruct(bounty_list,
+                    "Successfully changed '{}' from '{}'".format(alias, website))
+        return message

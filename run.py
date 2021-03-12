@@ -47,6 +47,17 @@ def remove_target(**kw):
     message = MangaTracker.remove_target(kw)
     print(message)
 
+@cli.command('update-target')
+@click.option('--website', '-w')
+@click.option('--alias', '-a')
+@click.option('--newalias', '-na')
+@click.option('--newlink', '-nl')
+def update_target(**kw):
+    """
+    Update existing target in bounty list.
+    """
+    message = MangaTracker.update_target(kw)
+    print(message)
 
 if __name__ == '__main__':
     cli()
