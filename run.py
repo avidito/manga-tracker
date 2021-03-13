@@ -17,6 +17,7 @@ def crawl():
     """
     handler = MangaTracker.init_job()
     MangaTracker.crawl(**handler)
+    MangaTracker.end_job()
 
 @cli.command('show-bounty')
 def show_bounty():
@@ -58,6 +59,13 @@ def update_target(**kw):
     """
     message = MangaTracker.update_target(kw)
     print(message)
+
+@cli.command('show-log')
+def show_log():
+    """
+    Get log from corresponding job.
+    """
+    MangaTracker.show_log()
 
 if __name__ == '__main__':
     cli()
