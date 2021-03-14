@@ -2,18 +2,18 @@ import pandas as pd
 
 class OutputHandler:
     """
-    Bridge from Web Crawler to Database
+    Bridge from Web Crawler to Outputs.
     """
     @staticmethod
-    def init_output(path, job_id, delimiter='|', columns=['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
+    def init_output(path, delimiter='|', columns=['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """
         Initiate output file.
         """
-        with open('{}\{}.txt'.format(path, job_id), 'w') as f:
+        with open('{}.txt'.format(path), 'w') as f:
             f.write(delimiter.join(columns) + '\n')
 
     @staticmethod
-    def load_data(out_path, alias, job_id, data, columns=['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
+    def load_data(out_path, alias, data, columns=['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """
         Convert data to row format and load to database
         """
@@ -24,7 +24,7 @@ class OutputHandler:
         row = alias + trans_data
 
         # Load to database
-        with open('{}\{}.txt'.format(out_path, job_id), 'a', encoding="utf-8") as f:
+        with open('{}.txt'.format(out_path), 'a', encoding="utf-8") as f:
             f.write(row + '\n')
 
     def show_result(self, job_id, columns=['alias', 'latest_chapter', 'updated_at']):

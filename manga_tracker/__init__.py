@@ -50,35 +50,35 @@ class MangaTracker:
         return data, req.status_code
 
     @staticmethod
-    def _load(title, response, data, job_id, log_path, out_path):
+    def _load(title, response, data, log_path, out_path):
         """
         Load data to database and log.
         """
         LogHandler.log_scrape(log_path, title, response)
-        OutputHandler.load_data(out_path, title, job_id, data)
+        OutputHandler.load_data(out_path, title, data)
 
     @staticmethod
     def init_job(log_path='logs', bounty_path='bounty.json', out_path='outputs'):
         """
         Initiate job by reading bounty and define job metadata.
         """
-        job_id = LogHandler.log_start(log_path)
+        LogHandler.log_start(log_path)
+
         groups = BountyHandler._read_bounty(bounty_path)
         LogHandler.logging(log_path, '[Init] Target aquired from bounty file. X target(s).')
 
-        OutputHandler.init_output(out_path, job_id)
+        OutputHandler.init_output(out_path)
         LogHandler.logging(log_path, '[Init] Output file successfully created.')
 
         handler = {
             'groups': groups,
-            'job_id': job_id,
             'log_path': log_path,
             'out_path': out_path
         }
         return handler
 
     @staticmethod
-    def crawl(groups, job_id, log_path, out_path):
+    def crawl(groups, log_path, out_path):
         """
         Run the web-crawling process.
         """
@@ -87,7 +87,7 @@ class MangaTracker:
             targets = group['targets']
             for (title, url) in targets:
                 data, response = MangaTracker._scrape(url)
-                MangaTracker._load(title, response, data, job_id, log_path, out_path)
+                MangaTracker._load(title, response, data, log_path, out_path)
 
     @staticmethod
     def end_job(log_path='logs'):
