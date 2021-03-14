@@ -74,5 +74,13 @@ def show_output():
     """
     MangaTracker.show_output()
 
+@cli.command('result')
+def result():
+    """
+    Show crawling result summary.
+    """
+    MangaTracker.result()
+
+
 if __name__ == '__main__':
     cli()

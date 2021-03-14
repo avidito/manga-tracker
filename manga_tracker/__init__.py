@@ -101,3 +101,4 @@ MangaTracker.remove_target = staticmethod(lambda kw: BountyHandler.remove_target
 MangaTracker.update_target = staticmethod(lambda kw: BountyHandler.update_target(**kw))
 MangaTracker.show_log = staticmethod(lambda: LogHandler.show_log())
 MangaTracker.show_output = staticmethod(lambda: OutputHandler.show_output())
+MangaTracker.result = staticmethod(lambda: OutputHandler.result())
