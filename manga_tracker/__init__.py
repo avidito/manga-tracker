@@ -37,9 +37,7 @@ class MangaTracker:
         # Extract information
         extracted = {
             'title': info_panel.h1.text,
-            'authors': [author.text for author in info_table[1].find_all('td')[1].find_all('a')],
             'ongoing': info_table[2].find_all('td')[1].text,
-            'genres': [genre.text for genre in info_table[3].find_all('td')[1].find_all('a')],
             'updated_at': info_extent[0].find_all('span')[1].text,
             'latest_chapter': info_extent[3].find_all('span')[1].a.text,
             'latest_chapter_link': info_extent[3].find_all('span')[1].a['href'],
@@ -96,11 +94,10 @@ class MangaTracker:
         """
         LogHandler.log_end(log_path)
 
-# Bounty Handler
+# Handler Utilization
 MangaTracker.show_bounty = staticmethod(lambda: BountyHandler.show_bounty())
 MangaTracker.add_target = staticmethod(lambda kw: BountyHandler.add_target(**kw))
 MangaTracker.remove_target = staticmethod(lambda kw: BountyHandler.remove_target(**kw))
 MangaTracker.update_target = staticmethod(lambda kw: BountyHandler.update_target(**kw))
-
-# Log Handler
 MangaTracker.show_log = staticmethod(lambda: LogHandler.show_log())
+MangaTracker.show_output = staticmethod(lambda: OutputHandler.show_output())

@@ -67,5 +67,12 @@ def show_log():
     """
     MangaTracker.show_log()
 
+@cli.command('show-output')
+def show_output():
+    """
+    Show full crawling result in table format.
+    """
+    MangaTracker.show_output()
+
 if __name__ == '__main__':
     cli()

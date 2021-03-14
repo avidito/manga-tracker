@@ -1,11 +1,9 @@
-import pandas as pd
-
 class OutputHandler:
     """
-    Bridge from Web Crawler to Outputs.
+    Handler to create and show job outputs.
     """
     @staticmethod
-    def init_output(path, delimiter='|', columns=['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
+    def init_output(path, delimiter='|', columns=['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """
         Initiate output file.
         """
@@ -13,7 +11,7 @@ class OutputHandler:
             f.write(delimiter.join(columns) + '\n')
 
     @staticmethod
-    def load_data(out_path, alias, data, columns=['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
+    def load_data(out_path, alias, data, columns=['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """
         Convert data to row format and load to database
         """
@@ -27,9 +25,17 @@ class OutputHandler:
         with open('{}.txt'.format(out_path), 'a', encoding="utf-8") as f:
             f.write(row + '\n')
 
-    def show_result(self, job_id, columns=['alias', 'latest_chapter', 'updated_at']):
+    @staticmethod
+    def show_output(out_path='outputs', delimiter='|'):
         """
-        Get result from corresponding job.
+        Show full crawling result in table format.
         """
-        result = pd.read_csv('{}\{}.txt'.format(self.path, job_id), delimiter='|')[columns]
-        print(result)
+        with open('{}.txt'.format(out_path), 'r', encoding="utf-8") as f:
+            raw = f.read()
+        result = [row.split(delimiter) for row in raw.split('\n')]
+
+        # Showing result
+        print(*result[0], sep=' | ')
+        print("-" * 50)
+        for row in result[1:]:
+            print(*row, sep=' | ')
