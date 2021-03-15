@@ -5,4 +5,5 @@ logs.txt
 outputs.txt
 bounty.json
 
-*/__pycache__/
+*__pycache__/
+*.egg-info

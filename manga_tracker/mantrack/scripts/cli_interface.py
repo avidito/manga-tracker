@@ -1,5 +1,5 @@
 import click
-from manga_tracker import MangaTracker
+from mantrack import MangaTracker
 
 @click.group()
 @click.version_option(version='1.0', prog_name='mantrack')
