@@ -1,9 +1,9 @@
 venv/
+test/
 
 plan.txt
 logs.txt
 outputs.txt
-bounty.json
 
 *__pycache__/
 *.egg-info

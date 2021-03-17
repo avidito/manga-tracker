@@ -12,22 +12,22 @@ class BountyHandler:
 
         Parameters
         ----------
-            path    : str. Pathname for bounty file (please insert fullpath to filename and extension).
+            path    : str. Pathname for bounty file (with extension).
         """
         with open(path, 'r') as f:
             bounty = json.loads(f.read())
         return bounty['groups']
 
     @staticmethod
-    def _check(website, target=None, path='bounty.json'):
+    def _check(path, website, target=None):
         """
         Check if group with website (and/or target) exist in bounty list.
 
         Parameters
         ----------
+            path        : str. Pathname for bounty file (with extension).
             website     : str. To be checked website from bounty groups.
             target      : str (default=None). To be checked target from website's group. Give value only if checking target existence.
-            path        : str (default='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
 
         Returns
         -------
@@ -57,7 +57,7 @@ class BountyHandler:
         return -1
 
     @staticmethod
-    def _reconstruct(bounty, message=None, path='bounty.json'):
+    def _reconstruct(path, bounty, message=None):
         """
         Reconstruct bounty list with new bounty list.
 
@@ -65,7 +65,7 @@ class BountyHandler:
         ----------
             bounty  : dict. New bounty list data as bounty list blueprint.
             message : str (default=None). Message for successfull reconstruct attempt.
-            path    : str (deafult='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
+            path    : str. Pathname for bounty file (with extension).
 
         Returns
         -------
@@ -73,16 +73,16 @@ class BountyHandler:
         """
         with open(path, 'w') as f:
             f.write(json.dumps({'groups': bounty}))
-        return msg
+        return message
 
     @staticmethod
-    def show_bounty(path='bounty.json'):
+    def show_bounty(path):
         """
         Show all targets in bounty list.
 
         Parameters
         ----------
-            path    : str (default='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
+            path    : str. Pathname for bounty file (with extension).
 
         Returns
         -------
@@ -98,12 +98,13 @@ class BountyHandler:
         return result
 
     @staticmethod
-    def add_target(website, alias, link):
+    def add_target(path, website, alias, link):
         """
         Add target to bounty list.
 
         Paramaters
         ----------
+            path    : str. Pathname for bounty file (with extension).
             website : str. Existing website that will be added with new target.
             alias   : str. New manga title (or alias) to be inputted.
             link    : str. New manga main page URL to be inputted.
@@ -113,7 +114,7 @@ class BountyHandler:
             message : str. Message upon successfull add target attempt.
         """
         # Find target
-        result = BountyHandler._check(website)
+        result = BountyHandler._check(path, website)
         if (result == -2):
             return "Group with website '{}' not found!".format(website)
         else:
@@ -123,17 +124,18 @@ class BountyHandler:
         group['targets'].append([alias, link])
 
         # Reconstruct bounty file
-        message = BountyHandler._reconstruct(bounty_list,
+        message = BountyHandler._reconstruct(path, bounty_list,
                     "Successfully add '{}' to '{}'".format(alias, website))
         return message
 
     @staticmethod
-    def remove_target(website, alias):
+    def remove_target(path, website, alias):
         """
         Remove target from bounty list.
 
         Parameters
         ----------
+            path    : str. Pathname for bounty file (with extension).
             website : str. Existing website where the target is grouped.
             alias   : str. Existing manga title (or alias) to be removed.
 
@@ -142,7 +144,7 @@ class BountyHandler:
             message : str. Message upon successfull remove target attempt.
         """
         # Find target
-        result = BountyHandler._check(website, alias)
+        result = BountyHandler._check(path, website, alias)
         if (result == -2):
             return "Group with website '{}' not found!".format(website)
         elif (result == -1):
@@ -157,17 +159,18 @@ class BountyHandler:
                 break
 
         # Reconstruct bounty file
-        message = BountyHandler._reconstruct(bounty_list,
+        message = BountyHandler._reconstruct(path, bounty_list,
                     "Successfully remove '{}' from '{}'".format(alias, website))
         return message
 
     @staticmethod
-    def update_target(website, alias, newalias=None, newlink=None):
+    def update_target(path, website, alias, newalias=None, newlink=None):
         """
         Update existing target in bounty list.
 
         Parameters
         ----------
+            path    : str. Pathname for bounty file (with extension).
             website : str. Existing website where the target is grouped.
             alias   : str. Existing manga title (or alias) to be updated.
             newalias: str (default=None). New manga title (or alias) for existing manga. Give value only if changing target alias.
@@ -181,7 +184,7 @@ class BountyHandler:
             message : str. Message upon successfull update target attempt.
         """
         # Find target
-        result = BountyHandler._check(website, alias)
+        result = BountyHandler._check(path, website, alias)
         if (result == -2):
             return "Group with website '{}' not found!".format(website)
         elif (result == -1):
@@ -200,6 +203,6 @@ class BountyHandler:
         p_target[1] = newlink if (newlink) else p_target[1]
 
         # Reconstruct bounty file
-        message = BountyHandler._reconstruct(bounty_list,
+        message = BountyHandler._reconstruct(path, bounty_list,
                     "Successfully changed '{}' from '{}'".format(alias, website))
         return message

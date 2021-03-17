@@ -4,7 +4,7 @@ class LogHandler:
     """
     [Static Class] Handler to create and show job logs.
     """
-    
+
     @staticmethod
     def _dtlog(message):
         """
@@ -70,7 +70,7 @@ class LogHandler:
             alias   : str. New manga title (or alias) to be inputted.
             response: int. Request status code while trying to get web page.
         """
-        LogHandler.logging(path, '[Scraping] {} - Response: {}'.format(title, response))
+        LogHandler.logging(path, '[Scraping] {} - Response: {}'.format(alias, response))
 
     @staticmethod
     def log_end(path):

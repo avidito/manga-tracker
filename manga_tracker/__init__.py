@@ -83,7 +83,7 @@ class MangaTracker:
 
     # Public Method
     @staticmethod
-    def init_job(bounty_path='bounty.json', log_path='logs', out_path='outputs'):
+    def init_job(bounty_path, log_path='logs', out_path='outputs'):
         """
         Initiate job by reading bounty and define job metadata.
 

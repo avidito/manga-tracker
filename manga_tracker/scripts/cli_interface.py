@@ -1,8 +1,14 @@
+import os
 import click
-from mantrack import MangaTracker
+
+from .. import MangaTracker
+
+# Constant
+PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
+BOUNTY_DIR = os.path.join(PROJECT_DIR, 'params/bounty.json')
 
 @click.group()
-@click.version_option(version='1.0', prog_name='mantrack')
+@click.version_option(version='1.0')
 def cli():
     """
     CLI Program to Track Updated Manga using Web-Scraping (bs4) with customizeable Manga Targets (Bounty) List.
@@ -14,7 +20,7 @@ def crawl():
     """
     Start web-crawling process.
     """
-    meta = MangaTracker.init_job()
+    meta = MangaTracker.init_job(BOUNTY_DIR)
     MangaTracker.crawl(**meta)
     MangaTracker.end_job()
 
@@ -23,7 +29,7 @@ def show_bounty():
     """
     Show all targets in bounty list.
     """
-    result = MangaTracker.show_bounty()
+    result = MangaTracker.show_bounty(BOUNTY_DIR)
     print(result)
 
 @cli.command('add-target')
@@ -40,7 +46,7 @@ def add_target(**kw):
     """
     Add target to bounty list.
     """
-    message = MangaTracker.add_target(kw)
+    message = MangaTracker.add_target(**kw, path=BOUNTY_DIR)
     print(message)
 
 @cli.command('remove-target')
@@ -54,7 +60,7 @@ def remove_target(**kw):
     """
     Remove target from bounty list.
     """
-    message = MangaTracker.remove_target(kw)
+    message = MangaTracker.remove_target(**kw, path=BOUNTY_DIR)
     print(message)
 
 @cli.command('update-target')
@@ -79,7 +85,7 @@ def update_target(**kw):
     if ((kw.get('newalias') == '') and (kw.get('newlink') == '')):
         print("Both newalias and newlink can't be empty at the same time!")
         return
-    message = MangaTracker.update_target(kw)
+    message = MangaTracker.update_target(**kw, path=BOUNTY_DIR)
     print(message)
 
 @cli.command('show-log')
