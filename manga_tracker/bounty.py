@@ -91,12 +91,11 @@ class BountyHandler:
             result  : str. Extracted bounty list with better visual format.
         """
         bounty_list = BountyHandler.read_bounty(path)
-        result = ''
+        result = []
         for bounty in bounty_list:
-            result += 'Website: {}\nTargets:\n'.format(bounty['website'])
-            for target in bounty['targets']:
-                result += '- {}\n\t{}\n'.format(*target)
-            result += '\n'
+            website = 'Website: {}'.format(bounty['website'])
+            targets = [[title, link] for title, link in bounty['targets']]
+            result.append([website] + targets)
         return result
 
     @staticmethod

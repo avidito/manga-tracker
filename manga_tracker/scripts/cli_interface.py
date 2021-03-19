@@ -1,5 +1,6 @@
 import os
 import click
+from terminaltables import AsciiTable
 
 from .. import MangaTracker
 
@@ -32,8 +33,14 @@ def show_bounty():
     """
     Show all targets in bounty list.
     """
-    result = MangaTracker.show_bounty(BOUNTY_DIR)
-    print(result)
+    header = ['Title', 'Link']
+    results = MangaTracker.show_bounty(BOUNTY_DIR)
+    for group in results:
+        tbl_website = AsciiTable([[group[0]]])
+        click.echo(tbl_website.table)
+        tbl_targets = AsciiTable([header] + group[1:])
+        click.echo(tbl_targets.table)
+        click.echo('')
 
 @cli.command('add-target')
 @click.option('--website', '-w',
