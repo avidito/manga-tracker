@@ -3,7 +3,7 @@ import click
 from terminaltables import AsciiTable
 
 from .. import MangaTracker
-from .utils import cvt_group_to_table, cvt_target_to_table
+from .utils import cvt_group_to_table, cvt_target_to_table, cvt_header_to_table
 
 # Constant
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -109,10 +109,39 @@ def update_target(**kw):
     Update existing target in bounty list.
     """
     if ((kw.get('newalias') == '') and (kw.get('newlink') == '')):
-        print("Both newalias and newlink can't be empty at the same time!")
-        return
-    message = MangaTracker.update_target(**kw, path=BOUNTY_DIR)
-    print(message)
+        click.echo("Both newalias and newlink can't be empty at the same time!")
+    else:
+        target_meta = {
+            'website': kw['website'],
+            'alias': kw['alias']
+        }
+        result = MangaTracker.get_target(**target_meta, path=BOUNTY_DIR)
+        if (result[0] == -1):
+            click.echo(result[1])
+        else:
+            bl, gid, tid = result
+            old_target = {
+                'website': bl[gid]['website'],
+                'alias': bl[gid]['targets'][tid][0],
+                'link': bl[gid]['targets'][tid][1]
+            }
+            new_target = {
+                'website': kw['website'],
+                'alias': kw['newalias'],
+                'link': kw['newlink']
+            }
+            preview_old_tbl = cvt_target_to_table(old_target)
+            preview_new_tbl = cvt_target_to_table(new_target)
+
+            click.echo(cvt_header_to_table('Old Target').table)
+            click.echo(preview_old_tbl.table)
+            click.echo('')
+            click.echo(cvt_header_to_table('New Target').table)
+            click.echo(preview_new_tbl.table)
+
+            if (click.confirm("Are you sure want to change old target into new target?")):
+                message = MangaTracker.update_target(**kw, path=BOUNTY_DIR)
+                click.echo(message)
 
 @cli.command('show-log')
 def show_log():

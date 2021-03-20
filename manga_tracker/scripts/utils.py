@@ -19,3 +19,9 @@ def cvt_target_to_table(target):
     preview = [[col, val] for col, val in zip(columns, values)]
     preview_tbl = AsciiTable([['Key', 'Value']] + preview)
     return preview_tbl
+
+def cvt_header_to_table(header):
+    """
+    Convert header string to AsciiTable.
+    """
+    return AsciiTable([[header]])

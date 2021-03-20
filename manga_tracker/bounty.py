@@ -144,6 +144,7 @@ class BountyHandler:
         -------
             message : str. Message upon successfull remove target attempt.
         """
+        # Find target
         result = BountyHandler.get_target(path, website, alias)
         if (result[0] == -1):
             return result[1]
@@ -178,24 +179,15 @@ class BountyHandler:
         """
         # Find target
         result = BountyHandler.get_target(path, website, alias)
-        if (result == -2):
-            return "Group with website '{}' not found!".format(website)
-        elif (result == -1):
-            return "Group with target {} not found!".format(alias)
+        if (result[0] == -1):
+            return result[1]
         else:
-            bounty_list, group = result
-
-        # Get target from group
-        for target in group['targets']:
-            if (target[0] == alias):
-                p_target = target
-                break
+            bounty_list, group_id, target_id = result
 
         # Edit alias (and/or link) value
-        p_target[0] = newalias if (newalias) else p_target[0]
-        p_target[1] = newlink if (newlink) else p_target[1]
-
-        # Reconstruct bounty file
+        target = bounty_list[group_id]['targets'][target_id]
+        target[0] = newalias if (newalias) else target[0]
+        target[1] = newlink if (newlink) else target[1]
         message = BountyHandler._reconstruct(path, bounty_list,
                     "Successfully changed '{}' from '{}'".format(alias, website))
         return message
