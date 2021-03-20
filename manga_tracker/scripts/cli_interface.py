@@ -80,8 +80,26 @@ def remove_target(**kw):
     """
     Remove target from bounty list.
     """
-    message = MangaTracker.remove_target(**kw, path=BOUNTY_DIR)
-    print(message)
+    result = MangaTracker.get_target(**kw, path=BOUNTY_DIR)
+    if (result[0] == -1):
+        click.echo(result[1])
+    else:
+        bl, gid, tid = result
+        target = {
+            'website': bl[gid]['website'],
+            'alias': bl[gid]['targets'][tid][0],
+            'link': bl[gid]['targets'][tid][1]
+        }
+        keys = ['website', 'alias', 'link']
+        values = [target[key] for key in keys]
+        columns = ["Website", "Alias", "URL"]
+        preview = [[col, val] for col, val in zip(columns, values)]
+        preview_tbl = AsciiTable([['Key', 'Value']] + preview)
+        click.echo(preview_tbl.table)
+
+        if (click.confirm("Are these input correct?")):
+            message = MangaTracker.remove_target(**kw, path=BOUNTY_DIR)
+            click.echo(message)
 
 @cli.command('update-target')
 @click.option('--website', '-w',

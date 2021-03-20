@@ -7,44 +7,6 @@ class BountyHandler:
 
     # Private Method
     @staticmethod
-    def _check(path, website, target=None):
-        """
-        Check if group with website (and/or target) exist in bounty list.
-
-        Parameters
-        ----------
-            path    : str. Pathname for bounty file (with extension).
-            website : str. To be checked website from bounty groups.
-            target  : str (default=None). To be checked target from website's group. Give value only if checking target existence.
-
-        Returns
-        -------
-        if group (or target) exist:
-            bounty_list : dict. Full list of groups from bounty list.
-            group       : dict. Group with inputted website (and target).
-        else:
-            error_code  : int. (-1) if group doesn't exist. (-2) if target doesn't exist.
-        """
-        bounty_list = BountyHandler.read_bounty(path)
-
-        # Check Group. If not found, return error
-        group = None
-        for bounty in bounty_list:
-            if (bounty['website'] == website):
-                group = bounty
-                break
-        if (group is None):
-            return -2
-        elif (target is None):
-            return bounty_list, group
-
-        # Check Target,. If not found return error
-        for gt in group['targets']:
-            if (gt[0] == target):
-                return bounty_list, group
-        return -1
-
-    @staticmethod
     def _reconstruct(path, bounty, message=None):
         """
         Reconstruct bounty list with new bounty list.
@@ -99,6 +61,46 @@ class BountyHandler:
         return result
 
     @staticmethod
+    def get_target(path, website, alias=None):
+        """
+        Get a group (and target) if exist in bounty list.
+
+        Parameters
+        ----------
+            path    : str. Pathname for bounty file (with extension).
+            website : str. To be checked website from bounty groups.
+            alias   : str (default=None). To be checked target's alias from website's group. Give value only if checking target existence.
+
+        Returns
+        -------
+        if group (or target) exist:
+            bounty_list : dict. Full list of groups from bounty list.
+            group_id    : int. Index of group with inputted website.
+            target_id   : int. Index of target with inputted alias (only if try to get a target).
+        else:
+            error_code  : int. (-1) if group or target doesn't exist.
+        """
+        bounty_list = BountyHandler.read_bounty(path)
+
+        # Check Group. If not found, return error
+        group_id = None
+        for id in range(len(bounty_list)):
+            if (bounty_list[id]['website'] == website):
+                group_id = id
+                break
+        if (group_id is None):
+            return -1, "Group with website '{}' was not found!".format(website)
+        elif (alias is None):
+            return bounty_list, group_id
+
+        # Check Target, If not found return error
+        targets = bounty_list[group_id]['targets']
+        for id in range(len(targets)):
+            if (targets[id][0] == alias):
+                return bounty_list, group_id, id
+        return -1, "Target with alias '{}' not found in '{}' group!".format(alias, website)
+
+    @staticmethod
     def add_target(path, website, alias, link):
         """
         Add target to bounty list.
@@ -115,15 +117,15 @@ class BountyHandler:
             message : str. Message upon successfull add target attempt.
         """
         # Find target
-        result = BountyHandler._check(path, website)
-        if (result == -2):
-            return "Group with website '{}' was not found!".format(website)
+        result = BountyHandler.get_target(path, website)
+        if (result[0] == -1):
+            return result[1]
         else:
-            bounty_list, group = result
+            bl, gid = result
 
         # Add target to group
-        group['targets'].append([alias, link])
-        message = BountyHandler._reconstruct(path, bounty_list,
+        bl[gid]['targets'].append([alias, link])
+        message = BountyHandler._reconstruct(path, bl,
                     "Successfully add '{}' to '{}'".format(alias, website))
         return message
 
@@ -134,30 +136,22 @@ class BountyHandler:
 
         Parameters
         ----------
-            path    : str. Pathname for bounty file (with extension).
-            website : str. Existing website where the target is grouped.
-            alias   : str. Existing manga title (or alias) to be removed.
+            path        : str. Pathname for bounty file (with extension).
+            bounty_list : str. Existing website where the target is grouped.
+            group       : str. Existing manga title (or alias) to be removed.
 
         Returns
         -------
             message : str. Message upon successfull remove target attempt.
         """
-        # Find target
-        result = BountyHandler._check(path, website, alias)
-        if (result == -2):
-            return "Group with website '{}' not found!".format(website)
-        elif (result == -1):
-            return "Group with target {} not found!".format(alias)
+        result = BountyHandler.get_target(path, website, alias)
+        if (result[0] == -1):
+            return result[1]
         else:
-            bounty_list, group = result
+            bounty_list, group_id, target_id = result
 
         # Remove target from group
-        for target in group['targets']:
-            if (target[0] == alias):
-                group['targets'].remove(target)
-                break
-
-        # Reconstruct bounty file
+        bounty_list[group_id]['targets'].pop(target_id)
         message = BountyHandler._reconstruct(path, bounty_list,
                     "Successfully remove '{}' from '{}'".format(alias, website))
         return message
@@ -183,7 +177,7 @@ class BountyHandler:
             message : str. Message upon successfull update target attempt.
         """
         # Find target
-        result = BountyHandler._check(path, website, alias)
+        result = BountyHandler.get_target(path, website, alias)
         if (result == -2):
             return "Group with website '{}' not found!".format(website)
         elif (result == -1):
