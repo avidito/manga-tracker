@@ -3,6 +3,7 @@ import click
 from terminaltables import AsciiTable
 
 from .. import MangaTracker
+from .utils import cvt_group_to_table, cvt_target_to_table
 
 # Constant
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -33,13 +34,11 @@ def show_bounty():
     """
     Show all targets in bounty list.
     """
-    header = ['Title', 'Link']
     results = MangaTracker.show_bounty(BOUNTY_DIR)
     for group in results:
-        tbl_website = AsciiTable([['Website: ' + group[0]]])
-        click.echo(tbl_website.table)
-        tbl_targets = AsciiTable([header] + group[1:])
-        click.echo(tbl_targets.table)
+        website, targets = cvt_group_to_table(group)
+        click.echo(website.table)
+        click.echo(targets.table)
         click.echo('')
 
 @cli.command('add-target')
@@ -56,15 +55,8 @@ def add_target(**kw):
     """
     Confirm user input and Add target to bounty list.
     """
-    # Preview user input
-    keys = ['website', 'alias', 'link']
-    values = [kw[key] for key in keys]
-    columns = ["Website", "Alias", "URL"]
-    preview = [[col, val] for col, val in zip(columns, values)]
-    preview_tbl = AsciiTable([['Key', 'Value']] + preview)
+    preview_tbl = cvt_target_to_table(kw)
     click.echo(preview_tbl.table)
-
-    # Confirmation
     if (click.confirm("Are these input correct?")):
         message = MangaTracker.add_target(**kw, path=BOUNTY_DIR)
         click.echo(message)
@@ -90,11 +82,7 @@ def remove_target(**kw):
             'alias': bl[gid]['targets'][tid][0],
             'link': bl[gid]['targets'][tid][1]
         }
-        keys = ['website', 'alias', 'link']
-        values = [target[key] for key in keys]
-        columns = ["Website", "Alias", "URL"]
-        preview = [[col, val] for col, val in zip(columns, values)]
-        preview_tbl = AsciiTable([['Key', 'Value']] + preview)
+        preview_tbl = cvt_target_to_table(target)
         click.echo(preview_tbl.table)
 
         if (click.confirm("Are these input correct?")):
