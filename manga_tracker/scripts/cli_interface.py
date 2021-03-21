@@ -7,9 +7,9 @@ from .utils import (cvt_group_to_table, cvt_target_to_table,
                     cvt_header_to_table, cvt_idx_to_target)
 
 # Constant
-PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
-BOUNTY_DIR = os.path.join(PROJECT_DIR, 'params/bounty.json')
-RESULT_DIR = 'result'
+PROJECT_DIR = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
+BOUNTY_DIR = os.path.join(os.path.join(PROJECT_DIR, 'params'), 'bounty.json')
+RESULT_DIR = os.path.join(os.getcwd(), 'result')
 
 @click.group()
 @click.version_option(version='1.0')
@@ -145,7 +145,8 @@ def show_log():
     """
     Get log from corresponding job.
     """
-    MangaTracker.show_log(RESULT_DIR)
+    logs = MangaTracker.show_log(RESULT_DIR)
+    click.echo(logs)
 
 @cli.command('show-output')
 def show_output():

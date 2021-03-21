@@ -107,10 +107,14 @@ class MangaTracker:
         LogHandler.log_start(result_path, silent)
 
         groups = BountyHandler.read_bounty(bounty_path)
-        LogHandler.logging(result_path, '[Init] Target aquired from bounty file. X target(s).', silent)
+        w_count = sum([1 for group in groups])
+        t_count = sum([1 for group in groups for target in group['targets']])
+        LogHandler.logging(path=result_path, silent=silent,
+                    message='[Init] Target aquired from bounty file from "{}". {} target(s) from {} website(s).'.format(bounty_path, t_count, w_count))
 
         OutputHandler.init_output(result_path)
-        LogHandler.logging(result_path, '[Init] Output file successfully created.', silent)
+        LogHandler.logging(path=result_path, silent=silent,
+                    message='[Init] Output file successfully created at "{}".'.format(result_path))
 
         return groups
 

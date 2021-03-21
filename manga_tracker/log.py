@@ -87,7 +87,7 @@ class LogHandler:
     @staticmethod
     def show_log(path):
         """
-        Get log from corresponding job.
+        Get log from latest job.
 
         Parameters
         ----------
@@ -95,5 +95,5 @@ class LogHandler:
         """
         log_path = path + '/logs.txt'
         with open(log_path, 'r') as f:
-            log = f.read()
-        print(log, end='')
+            logs = f.read()
+        return logs
