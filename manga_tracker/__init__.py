@@ -146,7 +146,7 @@ class MangaTracker:
 
 # Handler Utilization
 MangaTracker.show_bounty = staticmethod(BountyHandler.show_bounty)
-MangaTracker.get_target = staticmethod(BountyHandler.get_target)
+MangaTracker.check_target = staticmethod(BountyHandler.check_target)
 MangaTracker.add_target = staticmethod(BountyHandler.add_target)
 MangaTracker.remove_target = staticmethod(BountyHandler.remove_target)
 MangaTracker.update_target = staticmethod(BountyHandler.update_target)

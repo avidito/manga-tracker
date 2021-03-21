@@ -61,15 +61,16 @@ class BountyHandler:
         return result
 
     @staticmethod
-    def get_target(path, website, alias=None):
+    def check_target(path, website, alias=None, duplicate=False):
         """
-        Get a group (and target) if exist in bounty list.
+        Get or check a group (and target) if exist in bounty list.
 
         Parameters
         ----------
-            path    : str. Pathname for bounty file (with extension).
-            website : str. To be checked website from bounty groups.
-            alias   : str (default=None). To be checked target's alias from website's group. Give value only if checking target existence.
+            path        : str. Pathname for bounty file (with extension).
+            website     : str. To be checked website from bounty groups.
+            alias       : str (default=None). To be checked target's alias from website's group. Give value only if checking target existence.
+            duplicate   : boolean (default=False). Flag to check input's duplicate.
 
         Returns
         -------
@@ -78,11 +79,11 @@ class BountyHandler:
             group_id    : int. Index of group with inputted website.
             target_id   : int. Index of target with inputted alias (only if try to get a target).
         else:
-            error_code  : int. (-1) if group or target doesn't exist.
+            error_code  : int. (-1) if group or target doesn't exist or duplicate.
         """
         bounty_list = BountyHandler.read_bounty(path)
 
-        # Check Group. If not found, return error
+        # Check Group
         group_id = None
         for id in range(len(bounty_list)):
             if (bounty_list[id]['website'] == website):
@@ -93,39 +94,34 @@ class BountyHandler:
         elif (alias is None):
             return bounty_list, group_id
 
-        # Check Target, If not found return error
+        # Check Target
         targets = bounty_list[group_id]['targets']
         for id in range(len(targets)):
             if (targets[id][0] == alias):
-                return bounty_list, group_id, id
-        return -1, "Target with alias '{}' not found in '{}' group!".format(alias, website)
+                if (duplicate):
+                    return -1, "Target with alias '{}' already exist in '{}' group's!".format(alias, website)
+                else:
+                    return bounty_list, group_id, id
+        return -1, "Target with alias '{}' was not found in '{}' group's!".format(alias, website)
 
     @staticmethod
-    def add_target(path, website, alias, link):
+    def add_target(bounty_list, group_id, website, alias, link, path):
         """
         Add target to bounty list.
 
         Paramaters
         ----------
-            path    : str. Pathname for bounty file (with extension).
-            website : str. Existing website that will be added with new target.
-            alias   : str. New manga title (or alias) to be inputted.
-            link    : str. New manga main page URL to be inputted.
+            bounty_list : dict. Full list of groups from bounty list.
+            group_id    : int. Index of group with inputted website.
+            alias       : str. New manga title (or alias) to be inputted.
+            link        : str. New manga main page URL to be inputted.
 
         Returns
         -------
             message : str. Message upon successfull add target attempt.
         """
-        # Find target
-        result = BountyHandler.get_target(path, website)
-        if (result[0] == -1):
-            return result[1]
-        else:
-            bl, gid = result
-
-        # Add target to group
-        bl[gid]['targets'].append([alias, link])
-        message = BountyHandler._reconstruct(path, bl,
+        bounty_list[group_id]['targets'].append([alias, link])
+        message = BountyHandler._reconstruct(path, bounty_list,
                     "Successfully add '{}' to '{}'".format(alias, website))
         return message
 
@@ -145,7 +141,7 @@ class BountyHandler:
             message : str. Message upon successfull remove target attempt.
         """
         # Find target
-        result = BountyHandler.get_target(path, website, alias)
+        result = BountyHandler.check_target(path, website, alias)
         if (result[0] == -1):
             return result[1]
         else:
@@ -178,7 +174,7 @@ class BountyHandler:
             message : str. Message upon successfull update target attempt.
         """
         # Find target
-        result = BountyHandler.get_target(path, website, alias)
+        result = BountyHandler.check_target(path, website, alias)
         if (result[0] == -1):
             return result[1]
         else:

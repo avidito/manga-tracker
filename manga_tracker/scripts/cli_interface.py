@@ -55,11 +55,16 @@ def add_target(**kw):
     """
     Confirm user input and Add target to bounty list.
     """
-    preview_tbl = cvt_target_to_table(kw)
-    click.echo(preview_tbl.table)
-    if (click.confirm("Are these input correct?")):
-        message = MangaTracker.add_target(**kw, path=BOUNTY_DIR)
-        click.echo(message)
+    meta = { k: kw[k] for k in ('website', 'alias') }
+    result = MangaTracker.check_target(**meta, path=BOUNTY_DIR, duplicate=True)
+    if (result[0] == -1):
+        click.echo(result[1])
+    else:
+        preview_tbl = cvt_target_to_table(kw)
+        click.echo(preview_tbl.table)
+        if (click.confirm("Are these input correct?")):
+            message = MangaTracker.add_target(*result, **kw, path=BOUNTY_DIR)
+            click.echo(message)
 
 @cli.command('remove-target')
 @click.option('--website', '-w',
@@ -72,7 +77,7 @@ def remove_target(**kw):
     """
     Remove target from bounty list.
     """
-    result = MangaTracker.get_target(**kw, path=BOUNTY_DIR)
+    result = MangaTracker.check_target(**kw, path=BOUNTY_DIR)
     if (result[0] == -1):
         click.echo(result[1])
     else:
@@ -115,7 +120,7 @@ def update_target(**kw):
             'website': kw['website'],
             'alias': kw['alias']
         }
-        result = MangaTracker.get_target(**target_meta, path=BOUNTY_DIR)
+        result = MangaTracker.check_target(**target_meta, path=BOUNTY_DIR)
         if (result[0] == -1):
             click.echo(result[1])
         else:
