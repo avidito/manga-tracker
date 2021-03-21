@@ -12,6 +12,13 @@ def cvt_group_to_table(group):
 def cvt_target_to_table(target, new=False):
     """
     Convert target information from dict format to AsciiTable.
+
+    Params:
+        target      : dict. Target information that will be extracted.
+        new         : boolean (default=False). Flag to set behaviour for new target (not from bounty list).
+
+    Returns:
+        preview_tbl : AsciiTable Object. Table format from target.
     """
     keys = ['website', 'newalias', 'newlink'] if (new) else ['website', 'alias', 'link']
     columns = ["Website", "Alias", "URL"]
@@ -23,12 +30,27 @@ def cvt_target_to_table(target, new=False):
 def cvt_header_to_table(header):
     """
     Convert header string to AsciiTable.
+
+    Params:
+        header      : str. String of header text.
+
+    Returns:
+        header_tbl : AsciiTable Object. Table format from header.
     """
-    return AsciiTable([[header]])
+    header_tbl = AsciiTable([[header]])
+    return header_tbl
 
 def cvt_idx_to_target(bounty_list, group_id, target_id):
     """
     Convert group id and target id into target dict.
+
+    Params:
+        bounty_list : dict. Full list of groups from bounty list.
+        group_id    : int. Index of group to be converted.
+        target_id   : int. Index of target in group to be converted.
+
+    Returns:
+        target      : dict. Target in dictionary format.
     """
     target = {
         'website': bounty_list[group_id]['website'],
