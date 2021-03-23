@@ -58,3 +58,16 @@ def cvt_idx_to_target(bounty_list, group_id, target_id):
         'link': bounty_list[group_id]['targets'][target_id][1]
     }
     return target
+
+def cvt_output_to_table(output):
+    """
+    Convert output list to AsciiTable.
+
+    Params:
+        output      : list. Output data in 2D list format.
+
+    Returns:
+        output_tbl  : AsciiTable Object. Table format from ouput data.
+    """
+    output_tbl = AsciiTable(output)
+    return output_tbl

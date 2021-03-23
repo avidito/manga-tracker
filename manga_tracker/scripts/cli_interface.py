@@ -3,13 +3,18 @@ import click
 from terminaltables import AsciiTable
 
 from .. import MangaTracker
-from .utils import (cvt_group_to_table, cvt_target_to_table,
-                    cvt_header_to_table, cvt_idx_to_target)
+from .utils import (cvt_group_to_table,
+                    cvt_target_to_table,
+                    cvt_header_to_table,
+                    cvt_idx_to_target,
+                    cvt_output_to_table)
 
 # Constant
 PROJECT_DIR = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 BOUNTY_DIR = os.path.join(os.path.join(PROJECT_DIR, 'params'), 'bounty.json')
 RESULT_DIR = os.path.join(os.getcwd(), 'result')
+COLUMNS = ['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']
+DELIMITER = '|'
 
 @click.group()
 @click.version_option(version='1.0')
@@ -26,8 +31,8 @@ def crawl(silent):
     """
     Start web-crawling process.
     """
-    groups = MangaTracker.init_job(BOUNTY_DIR, RESULT_DIR, silent)
-    MangaTracker.crawl(groups, RESULT_DIR, silent)
+    groups = MangaTracker.init_job(BOUNTY_DIR, RESULT_DIR, COLUMNS, DELIMITER, silent)
+    MangaTracker.crawl(groups, RESULT_DIR, COLUMNS, DELIMITER, silent)
     MangaTracker.end_job(RESULT_DIR, silent)
 
 @cli.command('show-bounty')
@@ -153,14 +158,16 @@ def show_output():
     """
     Show full crawling result in table format.
     """
-    MangaTracker.show_output(RESULT_DIR)
+    output = MangaTracker.show_output(RESULT_DIR, DELIMITER)
+    click.echo(cvt_output_to_table(output).table)
+    # click.echo(output)
 
 @cli.command('result')
 def result():
     """
     Show crawling result summary.
     """
-    MangaTracker.result(RESULT_DIR)
+    MangaTracker.result(RESULT_DIR, DELIMITER)
 
 
 if __name__ == '__main__':

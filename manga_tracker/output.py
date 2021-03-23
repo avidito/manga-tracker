@@ -6,36 +6,37 @@ class OutputHandler:
     """
 
     @staticmethod
-    def init_output(path, delimiter='|', columns=['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
+    def init_output(path, columns, delimiter):
         """
         Initiate output file by pathname.
 
         Paramaters
         ----------
             path        : str. Relative pathname for output file directory (result directory).
-            delimiter   : str (default="|"). Delimiter used for separating data.
-            columns     : list (default=["alias", "title", "ongoing", "updated_at", "latest_chapter", "latest_chapter_link"]). List of columns used for output data.
+            columns     : list. List of columns name for output table.
+            delimiter   : str. Delimiter used for separating data.
         """
         out_path = path + '/outputs.txt'
         with open(out_path, 'w') as f:
             f.write(delimiter.join(columns) + '\n')
 
     @staticmethod
-    def load_data(path, alias, data, columns=['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
+    def load_data(path, alias, data, columns, delimiter):
         """
         Convert data to row format and load to database.
 
         Parameters
         ----------
-            path    : str. Relative pathname for output file directory (result directory).
-            alias   : str. Defined manga alias for output and log result.
-            data    : dict. Extracted data that want to be loaded to outputs file.
-            columns : list (default=["alias", "title", "ongoing", "updated_at", "latest_chapter", "latest_chapter_link"]). List of columns used for output data.
+            path        : str. Relative pathname for output file directory (result directory).
+            alias       : str. Defined manga alias for output and log result.
+            data        : dict. Extracted data that want to be loaded to outputs file.
+            columns     : list. List of columns name for output table.
+            delimiter   : str. Delimiter used for separating data.
         """
         # Transform data to row format
         trans_data = ''
         for col in columns[1:]:
-            trans_data += '|{}'.format(data[col])
+            trans_data += '{}{}'.format(delimiter, data[col])
         row = alias + trans_data
 
         # Load to database
@@ -44,28 +45,27 @@ class OutputHandler:
             f.write(row + '\n')
 
     @staticmethod
-    def show_output(path, delimiter='|'):
+    def show_output(path, delimiter):
         """
         Show full crawling result in table format.
 
         Parameters
         ----------
             path        : str. Relative pathname for output file directory (result directory).
-            delimiter   : str (default="|"). Delimiter used for separating data.
+            delimiter   : str. Delimiter used for separating data.
+
+        Returns
+        -------
+            output      : list. Output data in 2D list format.
         """
         out_path = path + '/outputs.txt'
         with open(out_path, 'r', encoding="utf-8") as f:
             raw = f.read()
-        result = [row.split(delimiter) for row in raw.split('\n')]
-
-        # Showing result
-        print(*result[0], sep=' | ')
-        print("-" * 50)
-        for row in result[1:]:
-            print(*row, sep=' | ')
+        output = [row.split(delimiter) for row in raw.split('\n')]
+        return output
 
     @staticmethod
-    def result(path, delimiter='|'):
+    def result(path, delimiter):
         """
         Show crawling result summary.
 
