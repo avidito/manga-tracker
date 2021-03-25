@@ -67,13 +67,14 @@ class MangaTracker:
         return data, req.status_code
 
     @staticmethod
-    def _load(path, alias, response, data, columns, delimiter, silent):
+    def _load(path,  website, alias, response, data, columns, delimiter, silent):
         """
         Load data to database and log.
 
         Parameters
         ----------
             path        : str. Relative pathname for output and log directory.
+            website     : str. Website's name for output data.
             alias       : str. Defined manga alias for output and log result.
             response    : int. Request status code while trying to get web page.
             data        : dict. Extracted data from web scraping in dictionary format.
@@ -81,7 +82,7 @@ class MangaTracker:
             silent      : boolean (default=False). Flag to silence progress messages.
         """
         LogHandler.log_scrape(path, alias, response, silent)
-        OutputHandler.load_data(path, alias, data, columns, delimiter)
+        OutputHandler.load_data(path, website, alias, data, columns, delimiter)
 
     # Public Method
     @staticmethod
@@ -139,7 +140,7 @@ class MangaTracker:
             targets = group['targets']
             for (title, url) in targets:
                 data, response = MangaTracker._scrape(url)
-                MangaTracker._load(result_path, title, response, data, columns, delimiter, silent)
+                MangaTracker._load(result_path, website, title, response, data, columns, delimiter, silent)
 
     @staticmethod
     def end_job(result_path, silent):

@@ -13,7 +13,7 @@ from .utils import (cvt_group_to_table,
 PROJECT_DIR = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 BOUNTY_DIR = os.path.join(os.path.join(PROJECT_DIR, 'params'), 'bounty.json')
 RESULT_DIR = os.path.join(os.getcwd(), 'result')
-COLUMNS = ['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']
+COLUMNS = ['website', 'alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']
 DELIMITER = '|'
 
 @click.group()

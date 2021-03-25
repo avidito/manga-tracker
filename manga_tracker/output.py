@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import operator
 
 class OutputHandler:
     """
@@ -6,9 +7,9 @@ class OutputHandler:
     """
 
     @staticmethod
-    def _format_viz(data):
+    def _output_viz(data):
         """
-        Format data for visualisation
+        Format data for output visualisation.
 
         Params
         ------
@@ -16,9 +17,10 @@ class OutputHandler:
 
         Returns
         -------
-            formatted   : tuple. Formatted output data for visualization.
+            formatted   : list. Formatted output data for output visualization.
         """
-        _f = (
+        _tr = (
+            lambda x: x,                                              # website
             lambda x: x,                                              # alias
             lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # title
             lambda x: 'Ongoing' if (x) else 'Completed',              # ongoing
@@ -26,11 +28,8 @@ class OutputHandler:
             lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # latest_chapter
             lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # latest_chapter_link
         )
-        formatted = []
-        for row in data:
-            f_row = [_f[i](row[i]) for i in range(len(row))]
-            formatted.append(f_row)
-        return formatted
+        formatted = [[_tr[i](val) for i, val in enumerate(row)] for row in data]
+        return formatted[0], formatted[1:]
 
     @staticmethod
     def init_output(path, columns, delimiter):
@@ -48,13 +47,14 @@ class OutputHandler:
             f.write(delimiter.join(columns) + '\n')
 
     @staticmethod
-    def load_data(path, alias, data, columns, delimiter):
+    def load_data(path, website, alias, data, columns, delimiter):
         """
         Convert data to row format and load to database.
 
         Parameters
         ----------
             path        : str. Relative pathname for output file directory (result directory).
+            website     : str. Website's name for output data.
             alias       : str. Defined manga alias for output and log result.
             data        : dict. Extracted data that want to be loaded to outputs file.
             columns     : list. List of columns name for output table.
@@ -62,9 +62,9 @@ class OutputHandler:
         """
         # Transform data to row format
         trans_data = ''
-        for col in columns[1:]:
+        for col in columns[2:]:
             trans_data += '{}{}'.format(delimiter, data[col])
-        row = alias + trans_data
+        row = ''.join([website, '|', alias, trans_data])
 
         # Load to database
         out_path = path + '/outputs.txt'
@@ -91,7 +91,9 @@ class OutputHandler:
         output = [row.split(delimiter) for row in raw.split('\n')]
 
         # Format Visualization
-        formatted = OutputHandler._format_viz(output)
+        header, content = OutputHandler._output_viz(output)
+        content.sort(key=operator.itemgetter(0, 1))
+        formatted = [header] + content
         return formatted
 
     @staticmethod
@@ -116,7 +118,7 @@ class OutputHandler:
         updated_older = []
         today_date = datetime.now().date()
         for row in result[1:]:
-            date = datetime.strptime(row[3], '%d-%m-%Y %H:%M').date()
+            date = datetime.strptime(row[4], '%d-%m-%Y %H:%M').date()
             if (date == today_date):
                 updated_today.append(row)
             elif (date >= (today_date - timedelta(days=7))):
