@@ -122,7 +122,7 @@ class LogHandler:
             'end_time': logs[-2][-19:],
             'bounty_path': logs[2].split('"')[1],
             'result_path': logs[3].split('"')[1],
-            'counter': logs[2].split('.')[-1],
+            'counter': logs[2].split('.')[-1].strip(),
             'success': sum([1 if (row[-3:] == '200') else 0 for row in logs])
         }
         return meta

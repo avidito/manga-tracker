@@ -168,7 +168,17 @@ def result():
     """
     result = MangaTracker.result(RESULT_DIR, DELIMITER)
     meta = MangaTracker.extract_meta(RESULT_DIR)
-    click.echo(meta)
+    tcount = int(meta['counter'][0])
+    scount = int(meta['success'])
+    report = ("{:12}: {}\n{:12}: {}\n{:12}: {}\n{:12}: {}\n{:12}: {}\n{:12}: {}\n{:12}: {} ({:.2f})\n"
+                ).format("Job ID", meta['job_id'],
+                         "Start Time", meta['start_time'],
+                         "End Time", meta['end_time'],
+                         "Bounty Path", meta['bounty_path'],
+                         "Result_Path", meta['result_path'],
+                         "Counter", meta['counter'],
+                         "Success", scount, (tcount/scount)*100)
+    click.echo(report)
     click.echo(cvt_output_to_table(result).table)
 
 if __name__ == '__main__':
