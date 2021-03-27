@@ -11,7 +11,7 @@ class OutputHandler:
         """
         Function to convert date into time category.
 
-        Params
+        Parameters
         ------
             today_dt: date. System current date.
             date_str: str. Date in string format.
@@ -36,9 +36,9 @@ class OutputHandler:
         """
         Format data for output visualisation.
 
-        Params
+        Parameters
         ------
-            data        : list. Output data in 2D list format.
+            data    : list. Output data in 2D list format.
 
         Returns
         -------
@@ -64,9 +64,9 @@ class OutputHandler:
         """
         Rearrange and transform output data for result visualization.
 
-        Params
+        Parameters
         ------
-            data        : list. Output data in 2D list format.
+            data    : list. Output data in 2D list format.
 
         Returns
         -------
@@ -109,11 +109,11 @@ class OutputHandler:
 
         Paramaters
         ----------
-            path        : str. Relative pathname for output file directory (result directory).
+            path        : str. Pathname for output file directory (result directory).
             columns     : list. List of columns name for output table.
             delimiter   : str. Delimiter used for separating data.
         """
-        out_path = path + '/outputs.txt'
+        out_path = f'{path}/outputs.txt'
         with open(out_path, 'w') as f:
             f.write(delimiter.join(columns) + '\n')
 
@@ -124,7 +124,7 @@ class OutputHandler:
 
         Parameters
         ----------
-            path        : str. Relative pathname for output file directory (result directory).
+            path        : str. Pathname for output file directory (result directory).
             website     : str. Website's name for output data.
             alias       : str. Defined manga alias for output and log result.
             data        : dict. Extracted data that want to be loaded to outputs file.
@@ -134,13 +134,13 @@ class OutputHandler:
         # Transform data to row format
         trans_data = ''
         for col in columns[2:]:
-            trans_data += '{}{}'.format(delimiter, data[col])
-        row = ''.join([website, '|', alias, trans_data])
+            trans_data += f'{delimiter}{data[col]}'
+        row = f'{website}|{alias}{trans_data}\n'
 
         # Load to database
-        out_path = path + '/outputs.txt'
+        out_path = f'{path}/outputs.txt'
         with open(out_path, 'a', encoding="utf-8") as f:
-            f.write(row + '\n')
+            f.write(row)
 
     @staticmethod
     def show_output(path, delimiter):
@@ -149,14 +149,14 @@ class OutputHandler:
 
         Parameters
         ----------
-            path        : str. Relative pathname for output file directory (result directory).
+            path        : str. Pathname for output file directory (result directory).
             delimiter   : str. Delimiter used for separating data.
 
         Returns
         -------
             output      : list. Output data in 2D list format.
         """
-        out_path = path + '/outputs.txt'
+        out_path = f'{path}/outputs.txt'
         with open(out_path, 'r', encoding="utf-8") as f:
             raw = f.read()[:-1]
         output = [row.split(delimiter) for row in raw.split('\n')]
@@ -173,10 +173,10 @@ class OutputHandler:
 
         Parameters
         ----------
-            path        : str. Relative pathname for output file directory (result directory).
+            path        : str. Pathname for output file directory (result directory).
             delimiter   : str. Delimiter used for separating data.
         """
-        out_path = path + '/outputs.txt'
+        out_path = f'{path}/outputs.txt'
         with open(out_path, 'r', encoding="utf-8") as f:
             raw = f.read()
         result = [row.split(delimiter) for row in raw.strip().split('\n')]

@@ -15,7 +15,7 @@ class MangaTracker:
     @staticmethod
     def _preproccess(data):
         """
-        Return preprocessed data.
+        Preprocessed data.
 
         Parameters
         ----------
@@ -25,9 +25,17 @@ class MangaTracker:
         -------
             processed   : dict. Proccesed data from preprocessing input data.
         """
-        processed = data.copy()
-        processed['ongoing'] = 1 if (processed['ongoing'].lower() == 'ongoing') else  0
-        processed['updated_at'] = datetime.strptime(processed['updated_at'], '%b %d,%Y - %H:%M %p').strftime('%d-%m-%Y %H:%M')
+        ['website', 'alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']
+        _pr = {
+            'website': lambda x: x,
+            'alias': lambda x: x,
+            'title': lambda x: x,
+            'ongoing': lambda x: 1 if (x.lower() == 'ongoing') else  0,
+            'updated_at': lambda x: datetime.strptime(x, '%b %d,%Y - %H:%M %p').strftime('%d-%m-%Y %H:%M'),
+            'latest_chapter': lambda x: x,
+            'latest_chapter_link': lambda x: x,
+        }
+        processed = { k: _pr[k](data[k]) for k in data.keys()}
         return processed
 
     @staticmethod
@@ -67,19 +75,19 @@ class MangaTracker:
         return data, req.status_code
 
     @staticmethod
-    def _load(path,  website, alias, response, data, columns, delimiter, silent):
+    def _load(path, website, alias, response, data, columns, delimiter, silent):
         """
-        Load data to database and log.
+        Load data to output and log file.
 
         Parameters
         ----------
-            path        : str. Relative pathname for output and log directory.
-            website     : str. Website's name for output data.
-            alias       : str. Defined manga alias for output and log result.
+            path        : str. Pathname for output and log directory.
+            website     : str. Website's name of scraped data.
+            alias       : str. Manga's alias of scraped data.
             response    : int. Request status code while trying to get web page.
             data        : dict. Extracted data from web scraping in dictionary format.
-            delimiter   : str. Delimiter for separating data.
-            silent      : boolean (default=False). Flag to silence progress messages.
+            delimiter   : str. Data delimiter in output file.
+            silent      : boolean. Flag to silence progress messages.
         """
         LogHandler.log_scrape(path, alias, response, silent)
         OutputHandler.load_data(path, website, alias, data, columns, delimiter)
@@ -93,7 +101,7 @@ class MangaTracker:
         Parameters
         ----------
             bounty_path : str. Pathname for bounty file (with extension).
-            result_path : str. Relative pathname for output and log directory.
+            result_path : str. Pathname for output and log directory.
             columns     : list. List of columns name for output table.
             delimiter   : str. Delimiter for separating data.
             silent      : boolean (default=False). Flag to silence progress messages.
@@ -114,11 +122,11 @@ class MangaTracker:
         w_count = sum([1 for group in groups])
         t_count = sum([1 for group in groups for target in group['targets']])
         LogHandler.logging(path=result_path, silent=silent,
-                    message='[Init] Target aquired from bounty file from "{}". {} target(s) from {} website(s)'.format(bounty_path, t_count, w_count))
+                    message=f'[Init] Target aquired from bounty file from "{bounty_path}". {t_count} target(s) from {w_count} website(s)')
 
         OutputHandler.init_output(result_path, columns, delimiter)
         LogHandler.logging(path=result_path, silent=silent,
-                    message='[Init] Output file successfully created at "{}"'.format(result_path))
+                    message=f'[Init] Output file successfully created at "{result_path}"')
 
         return groups
 
@@ -145,11 +153,11 @@ class MangaTracker:
     @staticmethod
     def end_job(result_path, silent):
         """
-        Logging job's end time and show report.
+        Logging job's end time.
 
         Parameters
         ----------
-            result_path : str. Relative pathname for output and log directory.
+            result_path : str. Pathname for output and log directory.
             silent      : boolean (default=False). Flag to silence progress messages.
         """
         LogHandler.log_end(result_path, silent)

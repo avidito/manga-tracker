@@ -50,14 +50,12 @@ class BountyHandler:
 
         Returns
         -------
-            result  : str. Extracted bounty list with better visual format.
+            result  : list. Extracted bounty list, devided by group.
         """
         bounty_list = BountyHandler.read_bounty(path)
-        result = []
-        for bounty in bounty_list:
-            website = bounty['website']
-            targets = [[title, link] for title, link in bounty['targets']]
-            result.append([website] + targets)
+        result = [
+            [bn['website']] + [[title, link] for title, link in bn['targets']] for bn in bounty_list
+        ]
         return result
 
     @staticmethod
@@ -85,26 +83,26 @@ class BountyHandler:
 
         # Check Group
         group_id = None
-        for id in range(len(bounty_list)):
-            if (bounty_list[id]['website'] == website):
+        for id, group in enumerate(bounty_list):
+            if (group['website'] == website):
                 group_id = id
                 break
         if (group_id is None):
-            return (-1, "Group with website '{}' was not found!".format(website))
+            return (-1, f"Group with website '{website}' was not found!")
         elif (alias is None):
             return (bounty_list, group_id)
 
         # Check Target
         targets = bounty_list[group_id]['targets']
         result = None
-        for id in range(len(targets)):
-            if (targets[id][0] == alias):
+        for id, target in enumerate(targets):
+            if (target[0] == alias):
                 result = (bounty_list, group_id, id)
                 break
         if (duplicate):
-            return (bounty_list, group_id) if (result is None) else (-1, "Target with alias '{}' already exist in '{}' group's!".format(alias, website))
+            return (bounty_list, group_id) if (result is None) else (-1, f"Target with alias '{alias}' already exist in '{website}' group's!")
         else:
-            return result if (result) else (-1, "Target with alias '{}' was not found in '{}' group's!".format(alias, website))
+            return result if (result) else (-1, f"Target with alias '{alias}' was not found in '{website}' group's!")
 
     @staticmethod
     def add_target(bounty_list, group_id, website, alias, link, path):
@@ -126,7 +124,7 @@ class BountyHandler:
         """
         bounty_list[group_id]['targets'].append([alias, link])
         message = BountyHandler._reconstruct(path, bounty_list,
-                    "Successfully add '{}' to '{}'".format(alias, website))
+                    f"Successfully add '{alias}' to '{website}'")
         return message
 
     @staticmethod
@@ -149,7 +147,7 @@ class BountyHandler:
         alias = bounty_list[group_id]['targets'][target_id][0]
         bounty_list[group_id]['targets'].pop(target_id)
         message = BountyHandler._reconstruct(path, bounty_list,
-                    "Successfully remove '{}' from '{}'".format(alias, website))
+                    f"Successfully remove '{alias}' from '{website}'")
         return message
 
     @staticmethod
@@ -175,8 +173,8 @@ class BountyHandler:
         """
         target = bounty_list[group_id]['targets'][target_id]
         oldalias = target[0]
-        target[0] = newalias if (newalias == "") else target[0]
-        target[1] = newlink if (newlink == "") else target[1]
+        target[0] = target[0] if (newalias == "") else newalias
+        target[1] = target[1] if (newlink == "") else newlink
         message = BountyHandler._reconstruct(path, bounty_list,
-                    "Successfully changed target '{}' from '{}'".format(oldalias, website))
+                    f"Successfully changed target '{oldalias}' from '{website}'")
         return message

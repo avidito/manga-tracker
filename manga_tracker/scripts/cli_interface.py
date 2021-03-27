@@ -9,7 +9,6 @@ from .utils import (cvt_group_to_table,
                     cvt_idx_to_target,
                     cvt_output_to_table)
 
-# Constant
 PROJECT_DIR = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 BOUNTY_DIR = os.path.join(os.path.join(PROJECT_DIR, 'params'), 'bounty.json')
 RESULT_DIR = os.path.join(os.getcwd(), 'result')
@@ -29,7 +28,7 @@ def cli():
                 help="Flag to silence progress messages.")
 def crawl(silent):
     """
-    Start web-crawling process.
+    Start web-crawling process with targets from bounty list.
     """
     groups = MangaTracker.init_job(BOUNTY_DIR, RESULT_DIR, COLUMNS, DELIMITER, silent)
     MangaTracker.crawl(groups, RESULT_DIR, COLUMNS, DELIMITER, silent)
@@ -38,7 +37,7 @@ def crawl(silent):
 @cli.command('show-bounty')
 def show_bounty():
     """
-    Show all targets in bounty list.
+    Show all groups and targets in bounty list.
     """
     results = MangaTracker.show_bounty(BOUNTY_DIR)
     for group in results:
@@ -59,7 +58,7 @@ def show_bounty():
                 prompt="Manga Page URL")
 def add_target(**kw):
     """
-    Confirm user input and Add target to bounty list.
+    Add target to bounty list.
     """
     meta = { k: kw[k] for k in ('website', 'alias') }
     result = MangaTracker.check_target(**meta, path=BOUNTY_DIR, duplicate=True)
@@ -134,21 +133,27 @@ def update_target(**kw):
         click.echo(preview_old_tbl.table)
         click.echo('')
 
-        new_target = { k: kw[k] for k in ('website', 'newalias', 'newlink') }
-        new_target['newalias'] = new_target['newalias'] if (new_target['newalias'] != "") else old_target['alias'] + " [no change]"
-        new_target['newlink'] = new_target['newlink'] if (new_target['newlink'] != "") else old_target['link'] + " [no change]"
+        new_target = {k: kw[k] for k in ('website', 'newalias', 'newlink')}
         preview_new_tbl = cvt_target_to_table(new_target, new=True)
         click.echo(cvt_header_to_table('New Target').table)
         click.echo(preview_new_tbl.table)
 
         if (click.confirm("Are you sure want to change old target into new target?")):
-            message = MangaTracker.update_target(*result, **new_target, path=BOUNTY_DIR)
+            meta = {
+                'website': new_target['website'],
+                'alias': new_target['newalias']
+            }
+            check = MangaTracker.check_target(**meta, path=BOUNTY_DIR, duplicate=True)
+            if (check[0] == -1):
+                message = check[1]
+            else:
+                message = MangaTracker.update_target(*result, **new_target, path=BOUNTY_DIR)
             click.echo(message)
 
 @cli.command('show-log')
 def show_log():
     """
-    Get log from corresponding job.
+    Get job's logs.
     """
     logs = MangaTracker.show_log(RESULT_DIR)
     click.echo(logs)
@@ -156,7 +161,7 @@ def show_log():
 @cli.command('show-output')
 def show_output():
     """
-    Show full crawling result in table format.
+    Show full crawling output in table format.
     """
     output = MangaTracker.show_output(RESULT_DIR, DELIMITER)
     click.echo(cvt_output_to_table(output).table)
@@ -170,14 +175,13 @@ def result():
     meta = MangaTracker.extract_meta(RESULT_DIR)
     tcount = int(meta['counter'][0])
     scount = int(meta['success'])
-    report = ("{:12}: {}\n{:12}: {}\n{:12}: {}\n{:12}: {}\n{:12}: {}\n{:12}: {}\n{:12}: {} ({:.2f})\n"
-                ).format("Job ID", meta['job_id'],
-                         "Start Time", meta['start_time'],
-                         "End Time", meta['end_time'],
-                         "Bounty Path", meta['bounty_path'],
-                         "Result_Path", meta['result_path'],
-                         "Counter", meta['counter'],
-                         "Success", scount, (tcount/scount)*100)
+    report = (f"{'Job ID':12}: {meta['job_id']}\n"
+              f"{'Start Time':12}: {meta['start_time']}\n"
+              f"{'End Time':12}: {meta['end_time']}\n"
+              f"{'Bounty Path':12}: {meta['bounty_path']}\n"
+              f"{'Result Path':12}: {meta['result_path']}\n"
+              f"{'Counter':12}: {meta['counter']}\n"
+              f"{'Success':12}: {scount} ({(tcount/scount)*100:.0f}%)\n")
     click.echo(report)
     click.echo(cvt_output_to_table(result).table)
 

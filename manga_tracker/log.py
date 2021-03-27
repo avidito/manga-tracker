@@ -19,7 +19,8 @@ class LogHandler:
             message : str. Formatted message.
         """
         now = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-        return "[{}] {}".format(now, message)
+        message = f"[{now}] {message}"
+        return message
 
     @staticmethod
     def logging(path, message, silent, mode='a'):
@@ -28,12 +29,12 @@ class LogHandler:
 
         Paramaters
         ----------
-            path    : str. Relative pathname for log file directory (result directory).
+            path    : str. Pathname for log file directory (result directory).
             message : str. Message for successfull activity or process attempt.
             silent  : boolean (default=False). Flag to silence progress messages.
             mode    : str (default='a'). File opening mode.
         """
-        log_path = path + '/logs.txt'
+        log_path = f'{path}/logs.txt'
         with open(log_path, mode) as f:
             f.write(LogHandler._dtlog(message) + '\n')
         if (not silent):
@@ -46,17 +47,17 @@ class LogHandler:
 
         Parameters
         ----------
-            path    : str. Relative pathname for log file directory (result directory).
-            silent  : boolean (default=False). Flag to silence progress messages.
+            path    : str. Pathname for log file directory (result directory).
+            silent  : boolean. Flag to silence progress messages.
         """
         # Init Job Id
         dt_start_time = datetime.now()
         job_id = dt_start_time.strftime("%Y%m%d%H%M")
-        LogHandler.logging(path, '[Job] Starting Job. Job Id: {}'.format(job_id), silent, mode='w')
+        LogHandler.logging(path, f'[Job] Starting Job. Job Id: {job_id}', silent, mode='w')
 
         # Log Start Time
         start_time = dt_start_time.strftime('%d/%m/%Y %H:%M:%S')
-        LogHandler.logging(path, '[Job] Start Time: {}'.format(start_time), silent)
+        LogHandler.logging(path, f'[Job] Start Time: {start_time}', silent)
 
     @staticmethod
     def log_scrape(path, alias, response, silent):
@@ -65,12 +66,12 @@ class LogHandler:
 
         Parameters
         ----------
-            path    : str. Relative pathname for log file directory (result directory).
+            path    : str. Pathname for log file directory (result directory).
             alias   : str. New manga title (or alias) to be inputted.
             response: int. Request status code while trying to get web page.
-            silent  : boolean (default=False). Flag to silence progress messages.
+            silent  : boolean. Flag to silence progress messages.
         """
-        LogHandler.logging(path, '[Scraping] {} - Response: {}'.format(alias, response), silent)
+        LogHandler.logging(path, f'[Scraping] {alias} - Response: {response}', silent)
 
     @staticmethod
     def log_end(path, silent):
@@ -82,7 +83,7 @@ class LogHandler:
             path    : str. Relative pathname for log file directory (result directory).
         """
         end_time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-        LogHandler.logging(path, '[Job] End Time: {}'.format(end_time), silent)
+        LogHandler.logging(path, f'[Job] End Time: {end_time}', silent)
 
     @staticmethod
     def show_log(path):
@@ -91,13 +92,13 @@ class LogHandler:
 
         Parameters
         ----------
-            path    : str. Relative pathname for log file directory (result directory).
+            path    : str. Pathname for log file directory (result directory).
 
         Returns
         -------
             logs    : str. Log file in string format.
         """
-        log_path = path + '/logs.txt'
+        log_path = f'{path}/logs.txt'
         with open(log_path, 'r') as f:
             logs = f.read()
         return logs
